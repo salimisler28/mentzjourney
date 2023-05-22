@@ -1,4 +1,4 @@
-package com.mentz.mentzjourney.presentation
+package com.mentz.mentzjourney.presentation.main
 
 sealed class ScreenState {
     object Idle: ScreenState()

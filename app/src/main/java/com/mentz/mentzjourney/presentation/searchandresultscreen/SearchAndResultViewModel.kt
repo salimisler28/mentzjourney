@@ -1,10 +1,10 @@
-package com.mentz.mentzjourney.presentation.main
+package com.mentz.mentzjourney.presentation.searchandresultscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mentz.mentzjourney.domain.usecase.GetBestPlacesUseCase
+import com.mentz.mentzjourney.presentation.main.ScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.buffer
@@ -13,9 +13,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class SearchAndResultViewModel @Inject constructor(
     private val getBestPlacesUseCase: GetBestPlacesUseCase
-) : ViewModel() {
+): ViewModel() {
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Idle)
     val screenState = _screenState.asStateFlow()
 

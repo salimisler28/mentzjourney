@@ -2,7 +2,7 @@ package com.mentz.mentzjourney.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mentz.mentzjourney.domain.usecase.GetPlacesUseCase
+import com.mentz.mentzjourney.domain.usecase.GetBestPlacesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getPlacesUseCase: GetPlacesUseCase
+    private val getBestPlacesUseCase: GetBestPlacesUseCase
 ) : ViewModel() {
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Idle)
     val screenState = _screenState.asStateFlow()
@@ -35,7 +35,7 @@ class MainViewModel @Inject constructor(
         } else {
             _screenState.value = ScreenState.Loading
 
-            getPlacesUseCase.invoke(_searchKey.value)
+            getBestPlacesUseCase.invoke(_searchKey.value)
                 .buffer(capacity = 3)
                 .collectLatest {
                     if (it.isSuccess) {

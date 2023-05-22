@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,10 +17,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +45,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.mentz.mentzjourney.presentation.ui.theme.MentzjourneyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import com.mentz.mentzjourney.R
@@ -191,19 +196,66 @@ fun Results(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceItem(placeModel: PlaceModel) {
-    Card(
-        onClick = { /*TODO*/ },
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp)
     ) {
-        Column {
-            Text(text = placeModel.name)
-            Text(text = placeModel.type)
-        }
+        val (leadingIcon, name, type, quality) = createRefs()
+
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = null,
+            modifier = Modifier
+                .constrainAs(leadingIcon) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                },
+            tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+        )
+
+        Text(
+            text = placeModel.name,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .constrainAs(name) {
+                    start.linkTo(leadingIcon.end, margin = 8.dp)
+                    top.linkTo(parent.top)
+                    end.linkTo(quality.start, margin = 8.dp)
+                    width = Dimension.fillToConstraints
+                }
+        )
+
+        Text(
+            text = placeModel.type,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .constrainAs(type) {
+                    start.linkTo(leadingIcon.end, margin = 8.dp)
+                    top.linkTo(name.bottom)
+                },
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+        )
+
+        Text(
+            text = placeModel.matchQuality.toString(),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .constrainAs(quality) {
+                    end.linkTo(parent.end, margin = 8.dp)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                },
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     }
 }
 

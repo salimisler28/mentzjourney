@@ -4,4 +4,5 @@ data class PlaceModel(
     val name: String,
     val type: String,
     val addInfo: String,
+    val matchQuality: Int
 )

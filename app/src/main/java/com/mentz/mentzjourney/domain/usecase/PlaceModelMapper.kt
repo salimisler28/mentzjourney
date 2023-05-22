@@ -9,7 +9,8 @@ class PlaceModelMapper @Inject constructor() {
         return PlaceModel(
             name = locationDto.name,
             type = locationDto.type,
-            addInfo = locationDto.streetName ?: ""
+            addInfo = locationDto.streetName ?: "",
+            matchQuality = locationDto.matchQuality
         )
     }
 }

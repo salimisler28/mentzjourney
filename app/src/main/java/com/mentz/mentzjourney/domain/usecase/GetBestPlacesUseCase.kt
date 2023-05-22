@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class GetPlacesUseCase @Inject constructor(
+class GetBestPlacesUseCase @Inject constructor(
     private val placesRepository: PlacesRepository,
     private val placeModelMapper: PlaceModelMapper
 ) {
@@ -14,11 +14,10 @@ class GetPlacesUseCase @Inject constructor(
         return flow<Result<List<PlaceModel>>> {
             val result = placesRepository.getPlaces(searchKey = searchKey)
             val mapped = result.map {
-                it.locations.map {
-                    placeModelMapper.map(it)
-                }
+                it.locations
+                    .map { placeModelMapper.map(it) }
+                    .sortedByDescending { it.matchQuality }
             }
-
             emit(mapped)
         }
     }

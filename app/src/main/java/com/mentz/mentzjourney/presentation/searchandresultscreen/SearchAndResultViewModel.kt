@@ -3,7 +3,6 @@ package com.mentz.mentzjourney.presentation.searchandresultscreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mentz.mentzjourney.domain.usecase.GetBestPlacesUseCase
-import com.mentz.mentzjourney.presentation.main.ScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

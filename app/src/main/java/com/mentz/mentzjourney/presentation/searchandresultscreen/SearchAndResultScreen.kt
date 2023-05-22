@@ -44,7 +44,6 @@ import androidx.constraintlayout.compose.Dimension
 import com.mentz.mentzjourney.R
 import com.mentz.mentzjourney.domain.model.PlaceModel
 import com.mentz.mentzjourney.presentation.TestTags
-import com.mentz.mentzjourney.presentation.main.ScreenState
 import kotlinx.coroutines.delay
 
 @Composable

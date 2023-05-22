@@ -1,4 +1,4 @@
-package com.mentz.mentzjourney.presentation.main
+package com.mentz.mentzjourney.presentation.searchandresultscreen
 
 import com.mentz.mentzjourney.domain.model.PlaceModel
 

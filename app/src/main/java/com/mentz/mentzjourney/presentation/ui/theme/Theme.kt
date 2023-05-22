@@ -1,4 +1,4 @@
-package com.mentz.mentzjourney.ui.theme
+package com.mentz.mentzjourney.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

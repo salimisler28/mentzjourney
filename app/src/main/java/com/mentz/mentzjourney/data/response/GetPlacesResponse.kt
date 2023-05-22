@@ -5,6 +5,6 @@ import com.mentz.mentzjourney.data.dto.SystemMessageDto
 
 data class GetPlacesResponse(
     val version: String,
-    val systemMessages: SystemMessageDto,
+    val systemMessages: List<SystemMessageDto>,
     val locations: List<LocationDto>
 )

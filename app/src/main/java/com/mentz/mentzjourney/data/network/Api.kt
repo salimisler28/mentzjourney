@@ -7,7 +7,7 @@ import retrofit2.http.Query
 
 interface Api {
     @GET("XML_STOPFINDER_REQUEST")
-    fun getPlaces(
+    suspend fun getPlaces(
         @Query("language") language: String = "de",
         @Query("outputFormat") outputFormat: String = "RapidJSON",
         @Query("type_sf") type_sf: String = "any",

@@ -2,15 +2,18 @@ package com.mentz.mentzjourney.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mentz.mentzjourney.domain.usecase.GetPlacesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val getPlacesUseCase: GetPlacesUseCase
 ) : ViewModel() {
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Idle)
     val screenState = _screenState.asStateFlow()
@@ -24,13 +27,34 @@ class MainViewModel @Inject constructor(
 
     fun onSearchKeyChange(value: String) = viewModelScope.launch {
         _searchKey.value = value
+    }
 
-        if (value.isEmpty()) {
+    fun startSearch() = viewModelScope.launch {
+        if (_searchKey.value.isEmpty()) {
             _screenState.value = ScreenState.EmptySearch
         } else {
             _screenState.value = ScreenState.Loading
-            delay(1000)
-            _screenState.value = ScreenState.Success
+
+            getPlacesUseCase.invoke(_searchKey.value)
+                .buffer(capacity = 3)
+                .collectLatest {
+                    if (it.isSuccess) {
+                        val list = it.getOrThrow()
+                        if (list.isEmpty()) {
+                            _screenState.value = ScreenState.NoResult
+                        } else {
+                            _screenState.value = ScreenState.Success(items = list)
+                        }
+                    } else {
+                        _screenState.value =
+                            ScreenState.Error(error = it.exceptionOrNull()?.message ?: "")
+                    }
+                }
         }
+    }
+
+    fun onClearSearchClicked() {
+        _searchKey.value = ""
+        _screenState.value = ScreenState.EmptySearch
     }
 }

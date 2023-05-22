@@ -3,7 +3,7 @@ package com.mentz.mentzjourney.data.helpers
 import retrofit2.Response
 
 suspend fun <T> makeRequest(
-    call: () -> Response<T>
+    call: suspend () -> Response<T>
 ): Result<T> {
     val response = call.invoke()
 

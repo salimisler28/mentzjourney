@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,10 +15,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.mentz.mentzjourney.presentation.ui.theme.MentzjourneyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import com.mentz.mentzjourney.R
+import com.mentz.mentzjourney.domain.model.PlaceModel
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
@@ -65,7 +75,12 @@ class MainActivity : ComponentActivity() {
                         mainViewModel.onSearchKeyChange(it)
                     },
                     onSearchClicked = {
+                        mainViewModel.startSearch()
                         focusManager.clearFocus()
+                    },
+                    onClearClicked = {
+                        mainViewModel.onClearSearchClicked()
+                        focusRequester.requestFocus()
                     }
                 )
             }
@@ -80,6 +95,7 @@ fun SearchAndResult(
     searchKeyValue: String,
     onSearchKeyValueChange: (String) -> Unit,
     onSearchClicked: () -> Unit,
+    onClearClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -88,31 +104,62 @@ fun SearchAndResult(
             focusRequester = searchTextFieldFocusRequester,
             value = searchKeyValue,
             onValueChange = onSearchKeyValueChange,
-            onSearchClicked = onSearchClicked
+            onSearchClicked = onSearchClicked,
+            onClearClicked = onClearClicked
         )
 
         when (screenState) {
-            ScreenState.Idle -> {}
-            ScreenState.EmptySearch -> EmptySearch()
-            ScreenState.Loading -> Loading()
-            ScreenState.Success -> {}
+            is ScreenState.Idle -> {}
+            is ScreenState.EmptySearch -> EmptySearch()
+            is ScreenState.Loading -> Loading()
+            is ScreenState.Error -> {}
+            is ScreenState.NoResult -> {
+                NoResult()
+            }
+
+            is ScreenState.Success -> {
+                Results(items = screenState.items)
+            }
         }
+    }
+}
+
+@Composable
+fun NoResult() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Text(
+            text = "No result found",
+            style = MaterialTheme.typography.headlineMedium
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Loading() {
-    CircularProgressIndicator()
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        CircularProgressIndicator()
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun EmptySearch() {
     Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.size(16.dp))
+
         Image(
             painter = painterResource(id = R.drawable.ic_search),
             contentDescription = null
@@ -122,8 +169,41 @@ fun EmptySearch() {
 
         Text(
             text = "Start Searching",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.headlineLarge
         )
+    }
+}
+
+@Composable
+fun Results(
+    items: List<PlaceModel>
+) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items.forEach {
+                item { PlaceItem(it) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlaceItem(placeModel: PlaceModel) {
+    Card(
+        onClick = { /*TODO*/ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Column {
+            Text(text = placeModel.name)
+            Text(text = placeModel.type)
+        }
     }
 }
 
@@ -133,7 +213,8 @@ fun SearchBar(
     focusRequester: FocusRequester,
     value: String,
     onValueChange: (String) -> Unit,
-    onSearchClicked: () -> Unit
+    onSearchClicked: () -> Unit,
+    onClearClicked: () -> Unit,
 ) {
     TextField(
         value = value,
@@ -155,7 +236,22 @@ fun SearchBar(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Search
-        )
+        ),
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = value != "",
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                IconButton(
+                    onClick = {
+                        onClearClicked.invoke()
+                    }
+                ) {
+                    Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+                }
+            }
+        }
     )
 }
 
@@ -167,6 +263,7 @@ private fun PreviewSearchAndResult() {
         searchKeyValue = "",
         onSearchKeyValueChange = {},
         onSearchClicked = {},
-        searchTextFieldFocusRequester = FocusRequester()
+        searchTextFieldFocusRequester = FocusRequester(),
+        onClearClicked = {}
     )
 }

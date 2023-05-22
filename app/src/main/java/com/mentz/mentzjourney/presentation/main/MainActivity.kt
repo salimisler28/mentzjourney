@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,10 +46,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.mentz.mentzjourney.presentation.ui.theme.MentzjourneyTheme
-import dagger.hilt.android.AndroidEntryPoint
 import com.mentz.mentzjourney.R
 import com.mentz.mentzjourney.domain.model.PlaceModel
+import com.mentz.mentzjourney.presentation.ui.theme.MentzjourneyTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
@@ -86,7 +85,10 @@ class MainActivity : ComponentActivity() {
                     onClearClicked = {
                         mainViewModel.onClearSearchClicked()
                         focusRequester.requestFocus()
-                    }
+                    },
+                    noResultText = getString(R.string.no_result),
+                    startSearchingText = getString(R.string.start_searching),
+                    placeHolderText = getString(R.string.search_a_place)
                 )
             }
         }
@@ -100,7 +102,10 @@ fun SearchAndResult(
     searchKeyValue: String,
     onSearchKeyValueChange: (String) -> Unit,
     onSearchClicked: () -> Unit,
-    onClearClicked: () -> Unit
+    onClearClicked: () -> Unit,
+    noResultText: String,
+    startSearchingText: String,
+    placeHolderText: String,
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -110,16 +115,20 @@ fun SearchAndResult(
             value = searchKeyValue,
             onValueChange = onSearchKeyValueChange,
             onSearchClicked = onSearchClicked,
-            onClearClicked = onClearClicked
+            onClearClicked = onClearClicked,
+            placeHolderText = placeHolderText
         )
 
         when (screenState) {
             is ScreenState.Idle -> {}
-            is ScreenState.EmptySearch -> EmptySearch()
+            is ScreenState.EmptySearch -> EmptySearch(
+                text = startSearchingText
+            )
+
             is ScreenState.Loading -> Loading()
             is ScreenState.Error -> {}
             is ScreenState.NoResult -> {
-                NoResult()
+                NoResult(text = noResultText)
             }
 
             is ScreenState.Success -> {
@@ -130,7 +139,9 @@ fun SearchAndResult(
 }
 
 @Composable
-fun NoResult() {
+fun NoResult(
+    text: String
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
@@ -138,7 +149,7 @@ fun NoResult() {
         Spacer(modifier = Modifier.size(16.dp))
 
         Text(
-            text = "No result found",
+            text = text,
             style = MaterialTheme.typography.headlineMedium
         )
     }
@@ -156,9 +167,10 @@ fun Loading() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun EmptySearch() {
+fun EmptySearch(
+    text: String
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
@@ -173,7 +185,7 @@ fun EmptySearch() {
         Spacer(modifier = Modifier.size(16.dp))
 
         Text(
-            text = "Start Searching",
+            text = text,
             style = MaterialTheme.typography.headlineLarge
         )
     }
@@ -267,12 +279,13 @@ fun SearchBar(
     onValueChange: (String) -> Unit,
     onSearchClicked: () -> Unit,
     onClearClicked: () -> Unit,
+    placeHolderText: String
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text(text = "Search a place")
+            Text(text = placeHolderText)
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -304,18 +317,5 @@ fun SearchBar(
                 }
             }
         }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewSearchAndResult() {
-    SearchAndResult(
-        screenState = ScreenState.EmptySearch,
-        searchKeyValue = "",
-        onSearchKeyValueChange = {},
-        onSearchClicked = {},
-        searchTextFieldFocusRequester = FocusRequester(),
-        onClearClicked = {}
     )
 }

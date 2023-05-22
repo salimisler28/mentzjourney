@@ -126,7 +126,7 @@ fun SearchAndResult(
             )
 
             is ScreenState.Loading -> Loading()
-            is ScreenState.Error -> {}
+            is ScreenState.Error -> Errors(message = screenState.message)
             is ScreenState.NoResult -> {
                 NoResult(text = noResultText)
             }
@@ -135,6 +135,28 @@ fun SearchAndResult(
                 Results(items = screenState.items)
             }
         }
+    }
+}
+
+@Composable
+fun Errors(message: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_error),
+            contentDescription = null
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Text(
+            text = message,
+            style = MaterialTheme.typography.headlineMedium
+        )
     }
 }
 

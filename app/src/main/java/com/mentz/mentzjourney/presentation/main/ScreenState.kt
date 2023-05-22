@@ -6,7 +6,7 @@ sealed class ScreenState {
     object Idle : ScreenState()
     object EmptySearch : ScreenState()
     object Loading : ScreenState()
-    data class Error(val error: String) : ScreenState()
+    data class Error(val message: String) : ScreenState()
     data class Success(val items: List<PlaceModel>) : ScreenState()
     object NoResult : ScreenState()
 }
